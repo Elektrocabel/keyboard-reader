@@ -1,0 +1,37 @@
+/ {
+    keyboard {
+        compatible = "gpio-keys";
+        keyboard0: keyboard_0 {
+            gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>,    //0
+                    <&gpio0 25 GPIO_ACTIVE_HIGH>,   //1
+                    <&gpio0 24 GPIO_ACTIVE_HIGH>,   //2
+                    <&gpio0 31 GPIO_ACTIVE_HIGH>,   //3
+                    <&gpio0 12 GPIO_ACTIVE_HIGH>,   //4
+                    <&gpio0 11 GPIO_ACTIVE_HIGH>,   //5
+                    <&gpio0 9 GPIO_ACTIVE_HIGH>,    //6 - had to cut off NFC to use these
+                    <&gpio0 10 GPIO_ACTIVE_HIGH>,   //7 - ref. https://infocenter.nordicsemi.com/topic/ug_nrf52840_dk/UG/dk/hw_nfc_if.html#hw_nfc_if
+                    <&gpio1 1 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 2 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 3 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 4 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 5 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 6 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 7 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 8 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 10 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 11 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 12 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 13 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 14 GPIO_ACTIVE_HIGH>,
+                    <&gpio1 15 GPIO_ACTIVE_HIGH>,
+                    <&gpio0 2 GPIO_ACTIVE_HIGH>,
+                    <&gpio0 26 GPIO_ACTIVE_HIGH>,
+                    <&gpio0 27 GPIO_ACTIVE_HIGH>,
+                    <&gpio0 3 GPIO_ACTIVE_HIGH>,
+                    <&gpio0 4 GPIO_ACTIVE_HIGH>,
+                    <&gpio0 28 GPIO_ACTIVE_HIGH>,
+                    <&gpio0 29 GPIO_ACTIVE_HIGH>,
+                    <&gpio0 30 GPIO_ACTIVE_HIGH>;
+        };
+    };
+};

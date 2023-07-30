@@ -7,8 +7,12 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/uart.h>
+#include <zephyr/drivers/gpio.h>
 
 #include <string.h>
+#include <stdio.h>
+
+#include "gpios.h"
 
 /* change this to any other UART peripheral if desired */
 #define UART_DEVICE_NODE DT_CHOSEN(zephyr_shell_uart)
@@ -70,6 +74,56 @@ void print_uart(char *buf)
 	}
 }
 
+static int current_driver = 0;
+
+void gpio_init(void) {
+	int ret = gpio_pin_configure_dt(&gpio[0], GPIO_OUTPUT_HIGH);
+	if (ret < 0)
+		print_uart("error :(\r\n");
+	for (int i=1; i<PIN_NUM; i++) {
+		ret = gpio_pin_configure_dt(&gpio[i], GPIO_INPUT | GPIO_PULL_DOWN);
+		if (ret < 0)
+			print_uart("error :(\r\n");
+	}
+}
+
+void select_next(void) {
+	int ret = gpio_pin_configure_dt(&gpio[current_driver], GPIO_INPUT | GPIO_PULL_DOWN);
+	if (ret < 0)
+		print_uart("error disabling :(\r\n");
+	current_driver = (current_driver + 1) % PIN_NUM;
+	ret = gpio_pin_configure_dt(&gpio[current_driver], GPIO_OUTPUT_HIGH);
+	if (ret < 0)
+		print_uart("error enabling next :(\r\n");
+}
+
+typedef struct {
+	uint8_t first;
+	uint8_t second;
+} pair_t;
+
+pair_t get_pair(void) {
+	pair_t p = {0xff, 0xff};
+	for (uint8_t i=0; i<PIN_NUM; i++) {
+		for (uint8_t j=0; j<PIN_NUM; j++) {
+			if (j == i)
+				continue;
+			int level = gpio_pin_get_dt(&gpio[j]);
+			if (level < 0) {
+				print_uart("an error getting pin state :(\r\n");
+			} else if (level == 1) {
+				if (p.first == 0xff) {
+					p.first = i; p.second = j;
+				} else if (p.first != j && p.second != i) {
+					print_uart("detected more than one pair!\r\n");
+				}
+			}
+		}
+		select_next();
+	}
+	return p;
+}
+
 int main(void)
 {
 	char tx_buf[MSG_SIZE];
@@ -94,14 +148,17 @@ int main(void)
 	}
 	uart_irq_rx_enable(uart_dev);
 
-	print_uart("Hello! I'm your echo bot.\r\n");
-	print_uart("Tell me something and press enter:\r\n");
+	gpio_init();
 
+	print_uart("Hello! I'm your keyboard bot.\r\n");
+	print_uart("Type the name of a key, hold it and press enter to get a pin pair for it.\r\n");
+
+	char s_to_print[20];
 	/* indefinitely wait for input from the user */
 	while (k_msgq_get(&uart_msgq, &tx_buf, K_FOREVER) == 0) {
-		print_uart("Echo: ");
-		print_uart(tx_buf);
-		print_uart("\r\n");
+		pair_t p = get_pair();
+		sprintf(s_to_print, "%s: (%d, %d)\r\n", tx_buf, p.first, p.second);
+		print_uart(s_to_print);
 	}
 	return 0;
 }
